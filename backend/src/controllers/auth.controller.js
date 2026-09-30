@@ -1,6 +1,8 @@
+import 'dotenv/config';
 import { userExists, createUser, userExistsLogin } from "../models/user.model.js";
 import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
+
 
 
 export const signup = async (req, res) => {
@@ -51,12 +53,14 @@ export const signup = async (req, res) => {
 }
 
 export const login = async (req, res) => {
+    try {
+        const { identifier, password } = req.body;
+        const user = await userExistsLogin(identifier);
+        if (!user) {
+            return res.status(401).json({ Error: "Password entered is incorrect" });
+        }
 
-    const { email, password } = req.body;
-
-    if (userExistsLogin) {
-        const { hashed_password, user_id } = await userExistsLogin(...);
-
+        const { hashed_password, user_id } = user;
         if (await argon2.verify(password, hashed_password)) {
             //jwt assign
             const token = jwt.sign(
@@ -64,21 +68,26 @@ export const login = async (req, res) => {
                 process.env.JWT_SECRET_KEY,
                 { expiresIn: "7d" }
             )
+            //JWT in HttpOnly cookie
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production"? true: false,
+                sameSite: "strict", 
+                maxAge: 7*24*60*60*1000 //milliseconds in 7 days 
+            });
 
             return res.status(200).json({
                 message: "Login Successfully",
-                token
             });
-
-
         } else {
-            return res.send(401).json({ Error: "The password is incorrect" });
+            return res.status(401).json({
+                Error: "Password entered is incorrect!"
+            });
         }
 
-
-
-    } else {
-        // console.error();
+    }
+    catch (error) {
+        console.error(error);
         return res.status(404).json({ Error: "User not Found" });
     }
 }

@@ -21,18 +21,24 @@ const createUser = async (username, email, password_hash) => {
 
     );
     return true;
-}
+};
 
 
-const userExistsLogin = async (username, email) => {
+const userExistsLogin = async (identifier) => {
     const result = await pool.query(`
     SELECT username, email , hashed_password, user_id
     FROM users 
-    WHERE username =$1 OR email = $2`,
-        [username, email]
+    WHERE username =$1 OR email = $1`,
+        [identifier]
     );
-    const { hashed_password, user_id } = result.rows[0];
+    if (result.rows.length > 0) {
+        const { hashed_password, user_id } = result.rows[0];
 
-    return { hashed_password, user_id };
+        return { hashed_password, user_id };
+    }else{
+        return null;
+    }
 };
+
+
 export { userExists, createUser, userExistsLogin };
