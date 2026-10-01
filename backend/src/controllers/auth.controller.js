@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { userExists, createUser, userExistsLogin } from "../models/user.model.js";
+import { existsByUsernameOrEmail, createUser, findByIndentity } from "../models/user.model.js";
 import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 
@@ -9,27 +9,21 @@ export const signup = async (req, res) => {
         const { username, email, password } = req.body;
 
         if (!username || !email || !password) {
-            // console.log("Please enter the credentials")
             return res.status(400).json({ message: "Please fill all credentials." });
         }
 
-        // if (password.length <= 6) {
-        //     // console.log("Password should be longer than 6 characters");
-        //     return res.status(401).json({ message: "Password has to be longer than 6 characters" });
-        // }
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!regex.test(email)) {
-            // console.log
 
             return res.status(400).json({ message: "email format is wrong" });
         }
 
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,128}$/;
         if (!passwordRegex.test(password)) {
-            return res.status(400).json({ message: "Password should contain symbols, numbers and uppercase letters" });
+            return res.status(401).json({ message: "Password must be 8-128 characters with uppercase, lowercase, a number and a symbol." });
         }
 
-        const exists = await userExists(username, email);
+        const exists = await existsByUsernameOrEmail(username, email);
         if (exists) {
             return res.status(409).json({ message: "User already exists. Try logging in." });
         } else {
@@ -42,7 +36,6 @@ export const signup = async (req, res) => {
 
         }
     } catch (error) {
-        // console.error('Server error', 500).json({ message: 'Server error' });
         console.error(error);
         return res.status(500).json({
             message: "Server error"
@@ -53,7 +46,7 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { identifier, password } = req.body;
-        const user = await userExistsLogin(identifier);
+        const user = await findByIndentity(identifier);
         if (!user) {
             return res.status(400).json({ message: "Password entered is incorrect" });
         }

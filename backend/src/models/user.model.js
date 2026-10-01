@@ -3,7 +3,7 @@ import pool from '../config/db.js';
 // const $1 = username;
 // const $2 = email;
 
-const userExists = async (username, email) => {
+const existsByUsernameOrEmail = async (username, email) => {
     const result = await pool.query(`
     SELECT username, email 
     FROM users 
@@ -24,7 +24,7 @@ const createUser = async (username, email, password_hash) => {
 };
 
 
-const userExistsLogin = async (identifier) => {
+const findByIndentity = async (identifier) => {
     const result = await pool.query(`
     SELECT username, email , password_hash, user_id
     FROM users 
@@ -41,4 +41,4 @@ const userExistsLogin = async (identifier) => {
 };
 
 
-export { userExists, createUser, userExistsLogin };
+export { existsByUsernameOrEmail, createUser, findByIndentity };
