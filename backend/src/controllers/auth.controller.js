@@ -3,8 +3,6 @@ import { userExists, createUser, userExistsLogin } from "../models/user.model.js
 import jwt from 'jsonwebtoken';
 import argon2 from 'argon2';
 
-
-
 export const signup = async (req, res) => {
 
     try {
@@ -12,28 +10,28 @@ export const signup = async (req, res) => {
 
         if (!username || !email || !password) {
             // console.log("Please enter the credentials")
-            return res.status(400).json({ error: "Please fill all credentials." });
+            return res.status(400).json({ message: "Please fill all credentials." });
         }
 
         // if (password.length <= 6) {
         //     // console.log("Password should be longer than 6 characters");
-        //     return res.status(401).json({ error: "Password has to be longer than 6 characters" });
+        //     return res.status(401).json({ message: "Password has to be longer than 6 characters" });
         // }
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!regex.test(email)) {
             // console.log
 
-            return res.status(401).json({ error: "email format is wrong" });
+            return res.status(400).json({ message: "email format is wrong" });
         }
 
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(password)) {
-            return res.status(401).json({ error: "Password should contain symbols, numbers and uppercase letters" });
+            return res.status(400).json({ message: "Password should contain symbols, numbers and uppercase letters" });
         }
 
         const exists = await userExists(username, email);
         if (exists) {
-            return res.status(400).json({ error: "User already exists. Try logging in." });
+            return res.status(409).json({ message: "User already exists. Try logging in." });
         } else {
             //hashes and salts the password
             const hash = await argon2.hash(password);
@@ -57,7 +55,7 @@ export const login = async (req, res) => {
         const { identifier, password } = req.body;
         const user = await userExistsLogin(identifier);
         if (!user) {
-            return res.status(401).json({ Error: "Password entered is incorrect" });
+            return res.status(400).json({ message: "Password entered is incorrect" });
         }
 
         const { hashed_password, user_id } = user;
@@ -80,14 +78,14 @@ export const login = async (req, res) => {
                 message: "Login Successfully",
             });
         } else {
-            return res.status(401).json({
-                Error: "Password entered is incorrect!"
+            return res.status(400).json({
+                message: "Password entered is incorrect!"
             });
         }
 
     }
     catch (error) {
         console.error(error);
-        return res.status(404).json({ Error: "User not Found" });
+        return res.status(500).json({ message: "User not Found" });
     }
 }

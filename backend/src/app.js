@@ -1,11 +1,9 @@
-import 'dotenv/config';
-import express from 'express';
 const app = express();
 app.use(express.json());
 
-app.get('/', (res,req) => {
-    res.send('Hello!');
-});
+app.use(cookieParser());
+app.use('/api/v1/auth', authRoutes);
+app.use(errorHandler);
 
 export default app;
 

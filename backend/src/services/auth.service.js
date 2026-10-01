@@ -1,0 +1,1 @@
+//hash, verify and sign token
