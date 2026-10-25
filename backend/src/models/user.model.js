@@ -1,8 +1,6 @@
 import pool from '../config/db.js';
-
 // const $1 = username;
 // const $2 = email;
-
 const existsByUsernameOrEmail = async (username, email) => {
     const result = await pool.query(`
     SELECT username, email 
@@ -12,7 +10,6 @@ const existsByUsernameOrEmail = async (username, email) => {
     );
     return result.rows.length > 0; //T -> if 1 or more, F -> 0 
 };
-
 const createUser = async (username, email, password_hash) => {
     const result = await pool.query(`
        INSERT INTO users(username , email, password_hash)
@@ -22,9 +19,7 @@ const createUser = async (username, email, password_hash) => {
     );
     return true;
 };
-
-
-const findByIndentity = async (identifier) => {
+const findByIdentity = async (identifier) => {
     const result = await pool.query(`
     SELECT username, email , password_hash, user_id
     FROM users 
@@ -39,6 +34,5 @@ const findByIndentity = async (identifier) => {
         return null;
     }
 };
-
-
-export { existsByUsernameOrEmail, createUser, findByIndentity };
+export { existsByUsernameOrEmail, createUser, findByIdentity };
+//findByIndentity
