@@ -2,7 +2,7 @@ import { signup, login } from "../services/auth.service.js";
 import env from "../config/env.js";
 
 
-export const signupController = async (req, res, next) => {
+export const signup = async (req, res, next) => {
     try {
 
         const { username, email, password } = req.body;
@@ -24,7 +24,7 @@ export const signupController = async (req, res, next) => {
 };
 
 
-export const loginController = async (req, res, next) => {
+export const login = async (req, res, next) => {
     try {
 
         const { identifier, password } = req.body;

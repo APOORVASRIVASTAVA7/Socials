@@ -1,5 +1,5 @@
 // Database configuration - db connection file
-import env from './config/env.js';
+import env from './env.js';
 import { Pool } from 'pg';
 const pool = new Pool({
     user: env.DB_USER,
