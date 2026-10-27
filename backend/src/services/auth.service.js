@@ -9,6 +9,7 @@ import {
 } from "../models/user.model.js";
 
 import env from "../config/env.js";
+import AppError from "../utils/AppError.js";
 
 
 export const signup = async (username, email, password) => {
@@ -16,9 +17,10 @@ export const signup = async (username, email, password) => {
     const userExists = await existsByUsernameOrEmail(username, email);
 
     if (userExists) {
-        const error = new Error("Username or email already exists");
-        error.statusCode = 409;
-        throw error;
+        throw new AppError(
+            "Username or email already exists",
+            409
+        );
     }
 
     const password_hash = await argon2.hash(password);
@@ -38,9 +40,10 @@ export const login = async (identifier, password) => {
     const user = await findByIdentity(identifier);
 
     if (!user) {
-        const error = new Error("Invalid credentials");
-        error.statusCode = 401;
-        throw error;
+        throw new AppError(
+            "Invalid credentials",
+            401
+        );
     }
 
     const isPasswordValid = await argon2.verify(
@@ -49,9 +52,10 @@ export const login = async (identifier, password) => {
     );
 
     if (!isPasswordValid) {
-        const error = new Error("Invalid credentials");
-        error.statusCode = 401;
-        throw error;
+        throw new AppError(
+            "Invalid credentials",
+            401
+        );
     }
 
     const token = jwt.sign(
