@@ -2,6 +2,7 @@ import {
     signup as signupUser,
     login as loginUser
 } from "../services/auth.service.js";
+import env from '../config/env.js'
 
 export const signup = async (req, res, next) => {
     try {
@@ -26,7 +27,7 @@ export const login = async (req, res, next) => {
 
         res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: env.NODE_ENV === "production",
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
